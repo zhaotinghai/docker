@@ -2,9 +2,7 @@ FROM alpine:3.8
 
 MAINTAINER zhaotinghai <zhaotinghai@sina.cn>
 
-RUN apk upgrade --update && \
-    && apk add --no-cache bash dnsmasq \
-    && rm -rf /var/cache/apk/*
+RUN apk --no-cache add dnsmasq
 
 #ADD config/* /etc/
 
