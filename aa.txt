@@ -1,0 +1,165 @@
+import gym
+import tensorflow as tf
+import numpy as np
+import random
+from collections import deque
+
+# Hyper Parameters for DQN
+GAMMA = 0.9 # discount factor for target Q
+INITIAL_EPSILON = 0.5 # starting value of epsilon
+FINAL_EPSILON = 0.01 # final value of epsilon
+REPLAY_SIZE = 10000 # experience replay buffer size
+BATCH_SIZE = 32 # size of minibatch
+
+class DQN():
+  # DQN Agent
+  def __init__(self, state_dim, action_dim):
+    # init experience replay
+    self.replay_buffer = deque()
+    # init some parameters
+    self.time_step = 0
+    self.epsilon = INITIAL_EPSILON
+    
+    self.create_Q_network()
+    self.state_dim = state_dim
+    self.action_dim = action_dim
+
+    # Init session
+    self.session = tf.InteractiveSession()
+    self.session.run(tf.initialize_all_variables())
+
+  def create_Q_network(self):
+    # network weights
+    h_layer_dim = 20
+    w1 = tf.Variable(tf.truncated_normal([self.state_dim, self.h_layer_dim]))
+    b1 = tf.Variable(tf.constant(0.01, shape = [h_layer_dim]))
+    w2 = tf.Variable(tf.truncated_normal([h_layer_dim, self.action_dim]))
+    b2 = tf.Variable(tf.constant(0.01, shape = [self.action_dim]))
+    # input layer
+    state_input = tf.placeholder("float",[None,self.state_dim])
+    # hidden layers
+    h_layer = tf.nn.relu(tf.nn.xw_plus_b(state_input, w1, b1))
+    # Q Value layer
+    Q_value = tf.matmul(h_layer,w2) + b2
+
+    self.Q_value = Q_value
+
+    action_input = tf.placeholder("float", [None,action_dim]) # one hot presentation
+    y_input = tf.placeholder("float", [None])
+    Q_action = tf.reduce_sum(tf.multiply(Q_value, action_input), reduction_indices = 1)
+    cost = tf.reduce_mean(tf.square(y_input - Q_action))
+
+    self.train = tf.train.AdamOptimizer(0.0001).minimize(cost)
+
+  def perceive(self,state,action,reward,next_state,done):
+    one_hot_action = np.zeros(self.action_dim)
+    one_hot_action[action] = 1
+    self.replay_buffer.append((state,one_hot_action,reward,next_state,done))
+    if len(self.replay_buffer) > REPLAY_SIZE:
+      self.replay_buffer.popleft()
+
+    if len(self.replay_buffer) > BATCH_SIZE:
+      self.train_Q_network()
+
+  def restore_Q_network(self):
+    print("restore_Q_network", self.time_step)
+    saver = tf.train.Saver()
+    saver.restore(self.session, "./cp5/model.ckpt")
+
+  def save_Q_network(self):
+    print("save_Q_network", self.time_step)
+    saver = tf.train.Saver()
+    #save_path = saver.save(self.session, "./cp5/model.ckpt", global_step=self.time_step)
+    save_path = saver.save(self.session, "./cp5/model.ckpt")
+    print (save_path)
+
+  def train_Q_network(self):
+    self.time_step += 1
+    # Step 1: obtain random minibatch from replay memory
+    minibatch = random.sample(self.replay_buffer,BATCH_SIZE)
+    state_batch = [data[0] for data in minibatch]
+    action_batch = [data[1] for data in minibatch]
+    reward_batch = [data[2] for data in minibatch]
+    next_state_batch = [data[3] for data in minibatch]
+
+    # Step 2: calculate y
+    y_batch = []
+    Q_value_batch = self.Q_value.eval(feed_dict={state_input:next_state_batch})
+    for i in range(0, BATCH_SIZE):
+      done = minibatch[i][4]
+      if done:
+        y_batch.append(reward_batch[i])
+      else :
+        y_batch.append(reward_batch[i] + GAMMA * np.max(Q_value_batch[i]))
+
+    self.train.run(feed_dict={
+      y_input:y_batch,
+      action_input:action_batch,
+      state_input:state_batch
+      })
+
+  def egreedy_action(self,state):
+    Q_value = self.Q_value.eval(feed_dict = {
+      state_input:[state]
+      })[0]
+    if random.random() <= self.epsilon:
+      return random.randint(0,self.action_dim - 1)
+    else:
+      return np.argmax(Q_value)
+
+    self.epsilon -= (INITIAL_EPSILON - FINAL_EPSILON)/10000
+
+  def action(self,state):
+    return np.argmax(self.Q_value.eval(feed_dict = {
+      state_input:[state]
+      })[0])
+
+
+# ---------------------------------------------------------
+# Hyper Parameters
+ENV_NAME = 'CartPole-v0'
+EPISODE = 10000 # Episode limitation
+STEP = 300 # Step limitation in an episode
+TEST = 10 # The number of experiment test every 100 episode
+
+def get_egreedy_action(state, action_dim, epsilon=0.5):
+  1
+def main():
+  # initialize OpenAI Gym env and dqn agent
+  env = gym.make(ENV_NAME)
+  agent = DQN(env)
+  agent.restore_Q_network()
+
+  for episode in range(EPISODE):
+    # initialize task
+    state = env.reset()
+    # Train
+    for step in range(STEP):
+      action = agent.egreedy_action(state) # e-greedy action for train
+      next_state,reward,done,_ = env.step(action)
+      # Define reward for agent
+      reward_agent = -1 if done else 0.1
+      agent.perceive(state,action,reward,next_state,done)
+      state = next_state
+      if done:
+        break
+    # Test every 100 episodes
+    if episode % 100 == 0:
+      agent.save_Q_network()
+      total_reward = 0
+      for i in range(TEST):
+        state = env.reset()
+        for j in range(STEP):
+          env.render()
+          action = agent.action(state) # direct action for test
+          state,reward,done,_ = env.step(action)
+          total_reward += reward
+          if done:
+            break
+      ave_reward = total_reward/TEST
+      print ('episode: ',episode,'Evaluation Average Reward:',ave_reward)
+      if ave_reward >= 200:
+        break
+
+if __name__ == '__main__':
+  main()
