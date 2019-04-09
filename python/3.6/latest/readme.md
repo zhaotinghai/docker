@@ -1,3 +1,5 @@
+```shell
+
 pip install pymongo apscheduler pystan fbprophet jupyter_contrib_nbextensions
 
 # Hinterland | Table Of Contens (2) | Highlight selected word
@@ -11,3 +13,5 @@ jupyter notebook --generate-config
 
 # set password
 # jupyter notebook password
+
+```
