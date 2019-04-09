@@ -6,7 +6,7 @@ MAINTAINER zhaotinghai <zhaotinghai@sina.cn>
 
 RUN pip --no-cache-dir install keras
 
-RUN pip --no-cache-dir install scipy statsmodels sklearn
+RUN pip --no-cache-dir install scipy statsmodels sklearn seaborn
 
 RUN jupyter notebook --generate-config
 
