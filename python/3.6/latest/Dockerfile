@@ -8,6 +8,18 @@ RUN pip --no-cache-dir install keras scipy statsmodels sklearn seaborn && \
 
 jupyter notebook --generate-config && \
 
+sed -i "s/#c.NotebookApp.ip = 'localhost'/c.NotebookApp.ip = '*'/g" /root/.jupyter/jupyter_notebook_config.py && \
+
+sed -i "s/#c.NotebookApp.allow_remote_access = False/c.NotebookApp.allow_remote_access = True/g" /root/.jupyter/jupyter_notebook_config.py && \
+
+sed -i "s/#c.NotebookApp.allow_root = False/c.NotebookApp.allow_root = True/g" /root/.jupyter/jupyter_notebook_config.py && \
+
+#sed -i "s/#c.NotebookApp.port = 8888/c.NotebookApp.port = 8888/g" /root/.jupyter/jupyter_notebook_config.py && \
+
 jupyter contrib nbextension install --user && \
 
-python --version && pip list
+python --version && \
+
+pip list && \
+
+cat /root/.jupyter/jupyter_notebook_config.py | grep c.NotebookApp.
