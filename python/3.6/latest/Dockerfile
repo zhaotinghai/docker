@@ -4,7 +4,7 @@ FROM zhaotinghai/python:3.6-base
 
 # RUN pip --no-cache-dir install jupyter notebook jupyter_contrib_nbextensions pymongo apscheduler pystan fbprophet tensorflow==1.13.1 \
 
-RUN pip --no-cache-dir install pandas-datareader keras scipy statsmodels sklearn seaborn && \
+RUN pip --no-cache-dir install jupyterthemes pandas-datareader keras scipy statsmodels sklearn seaborn && \
 
 jupyter notebook --generate-config && \
 
