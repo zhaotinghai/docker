@@ -14,6 +14,8 @@ sed -i "s/#c.NotebookApp.allow_remote_access = False/c.NotebookApp.allow_remote_
 
 sed -i "s/#c.NotebookApp.allow_root = False/c.NotebookApp.allow_root = True/g" /root/.jupyter/jupyter_notebook_config.py && \
 
+sed -i "s/#c.NotebookApp.open_browser = True/c.NotebookApp.open_browser = False/g" /root/.jupyter/jupyter_notebook_config.py && \
+
 #sed -i "s/#c.NotebookApp.port = 8888/c.NotebookApp.port = 8888/g" /root/.jupyter/jupyter_notebook_config.py && \
 
 jupyter contrib nbextension install --user && \
@@ -23,3 +25,5 @@ python --version && \
 pip list && \
 
 cat /root/.jupyter/jupyter_notebook_config.py | grep c.NotebookApp.
+
+CMD jupyter notebook --ip="*" --allow-root --no-browser --port=8888 --notebook-dir=/data/notebook/
