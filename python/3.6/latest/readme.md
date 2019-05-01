@@ -1,3 +1,41 @@
+用法1：直接运行
+```shell
+docker rm -f python
+docker run -it \
+--name=python \
+-v /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime \
+-v /data/notebook:/data/notebook \
+--privileged=true \
+-p 8888:8888 \
+zhaotinghai/python \
+jupyter notebook \
+--no-browser \
+--ip="*" \
+--notebook-dir=/data/notebook/ \
+--port=8888
+```
+
+用法2：常驻运行
+```shell
+docker rm -f python
+docker run -d \
+--name=python \
+-v /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime \
+-v /data/notebook:/data/notebook \
+--restart=always \
+--privileged=true \
+-p 8888:8888 \
+zhaotinghai/python \
+jupyter notebook \
+--no-browser \
+--ip="*" \
+--notebook-dir=/data/notebook/ \
+--port=8888
+```
+
+nbextensions 在网页上一般开启下面三个选项，代码提示，选择高亮，吧啦吧啦
+Hinterland | Table Of Contens (2) | Highlight selected word
+
 ```shell
 
 pip install pymongo apscheduler pystan fbprophet jupyter_contrib_nbextensions
