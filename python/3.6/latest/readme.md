@@ -1,4 +1,4 @@
-用法1：直接运行
+用法1：交互运行
 ```shell
 docker rm -f python
 docker run -it \
