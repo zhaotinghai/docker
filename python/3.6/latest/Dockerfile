@@ -26,4 +26,4 @@ pip list && \
 
 cat /root/.jupyter/jupyter_notebook_config.py | grep c.NotebookApp.
 
-CMD jupyter notebook --ip="*" --allow-root --no-browser --port=8888 --notebook-dir=/data/notebook/
+# CMD jupyter notebook --ip="*" --allow-root --no-browser --port=8888 --notebook-dir=/data/notebook/
