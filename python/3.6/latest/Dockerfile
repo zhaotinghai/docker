@@ -4,7 +4,8 @@ FROM zhaotinghai/python:3.6-base
 
 # RUN pip --no-cache-dir install jupyter notebook jupyter_contrib_nbextensions pymongo apscheduler pystan fbprophet pyecharts tensorflow==1.13.1 \
 
-RUN pip --no-cache-dir install pandas-datareader keras scipy statsmodels sklearn seaborn jupyterthemes tqdm numba && \
+RUN pip install --no-cache-dir --upgrade pip && \
+pip --no-cache-dir install pandas-datareader keras scipy statsmodels sklearn seaborn jupyterthemes tqdm numba && \
 jupyter notebook --generate-config && \
 sed -i "s/#c.NotebookApp.ip = 'localhost'/c.NotebookApp.ip = '*'/g" /root/.jupyter/jupyter_notebook_config.py && \
 sed -i "s/#c.NotebookApp.allow_remote_access = False/c.NotebookApp.allow_remote_access = True/g" /root/.jupyter/jupyter_notebook_config.py && \
